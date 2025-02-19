@@ -1,0 +1,156 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en" class="h-full">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}AI Sentiment Analyzer{% endblock %}</title>
+    
+    <!-- Tailwind CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    
+    <style>
+        :root {
+            --dark-primary: #1a1b26;
+            --dark-secondary: #24283b;
+            --accent-color: #7aa2f7;
+            --text-primary: #a9b1d6;
+            --text-secondary: #787c99;
+        }
+
+        .bg-gradient-animated {
+            background: linear-gradient(-45deg, #1a1b26, #24283b, #1f2335, #16161e);
+            background-size: 400% 400%;
+            animation: gradient 15s ease infinite;
+        }
+
+        @keyframes gradient {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
+        .dark-glass {
+            background: rgba(26, 27, 38, 0.7);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(122, 162, 247, 0.1);
+            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+        }
+
+        .content-wrapper {
+            min-height: calc(100vh - 4rem); /* Subtract footer height */
+            display: flex;
+            flex-direction: column;
+        }
+
+        main {
+            flex: 1;
+            color: var(--text-primary);
+        }
+
+        .glass-nav {
+            background: rgba(26, 27, 38, 0.8);
+            backdrop-filter: blur(12px);
+            border-bottom: 1px solid rgba(122, 162, 247, 0.1);
+        }
+
+        .glass-footer {
+            background: rgba(26, 27, 38, 0.8);
+            backdrop-filter: blur(12px);
+            border-top: 1px solid rgba(122, 162, 247, 0.1);
+        }
+
+        .hover-glow:hover {
+            box-shadow: 0 0 15px rgba(122, 162, 247, 0.3);
+        }
+
+        .slogan-text {
+            background: linear-gradient(to right, #7aa2f7, #2ac3de);
+            background-clip: text;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            animation: fadeInUp 1s ease-out;
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .typing-effect {
+            border-right: 2px solid #7aa2f7;
+            animation: typing 3.5s steps(40, end), blink-caret .75s step-end infinite;
+            white-space: nowrap;
+            overflow: hidden;
+        }
+
+        @keyframes typing {
+            from { width: 0 }
+            to { width: 100% }
+        }
+
+        @keyframes blink-caret {
+            from, to { border-color: transparent }
+            50% { border-color: #7aa2f7 }
+        }
+    </style>
+    
+    {% block extra_head %}{% endblock %}
+</head>
+<body class="bg-gradient-animated min-h-screen text-gray-300">
+    <div class="content-wrapper">
+        <!-- Navigation -->
+        <nav class="glass-nav">
+            <div class="max-w-6xl mx-auto px-4">
+                <div class="flex justify-center items-center h-16">
+                    <div class="flex-shrink-0">
+                        <a href="{% url 'analyzer:index' %}" 
+                           class="text-2xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-purple-400 hover:from-blue-500 hover:to-purple-500 transition-all duration-300 hover:scale-105 transform inline-block">
+                            AI Sentiment Analyzer
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </nav>
+
+        <!-- New Slogan Section -->
+        <div class="glass-nav py-8 mb-8">
+            <div class="max-w-4xl mx-auto text-center px-4">
+                <h1 class="text-3xl md:text-4xl font-bold mb-4 slogan-text">
+                    Unlock the Power of Sentiment Analysis
+                </h1>
+                <p class="text-lg md:text-xl text-gray-400 typing-effect inline-block">
+                    Discover what people really think, feel, and say about your content
+                </p>
+            </div>
+        </div>
+
+        <!-- Main Content -->
+        <main class="container mx-auto px-4 py-8">
+            {% block content %}{% endblock %}
+        </main>
+    </div>
+
+    <!-- Footer -->
+    <footer class="glass-footer h-16">
+        <div class="max-w-6xl mx-auto px-4 h-full">
+            <div class="flex items-center justify-center h-full">
+                <p class="text-gray-400">
+                    AI Sentiment Analysis Tool - Powered by RoBERTa - Developed by Shaikat S.
+                </p>
+            </div>
+        </div>
+    </footer>
+
+    {% block extra_scripts %}{% endblock %}
+</body>
+</html>

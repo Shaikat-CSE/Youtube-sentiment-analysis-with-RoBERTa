@@ -1,0 +1,207 @@
+<!-- analyzer/templates/analyzer/index.html -->
+{% extends 'analyzer/base.html' %}
+{% load static %}
+
+{% block title %}Sentiment Analysis Dashboard{% endblock %}
+
+{% block extra_head %}
+<style>
+    .glass-card {
+        background: rgba(26, 27, 38, 0.7);
+        backdrop-filter: blur(12px);
+        border: 1px solid rgba(122, 162, 247, 0.1);
+        box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+        transition: all 0.3s ease;
+    }
+    
+    .glass-card:hover {
+        background: rgba(36, 40, 59, 0.8);
+        transform: translateY(-2px);
+        box-shadow: 0 12px 40px 0 rgba(0, 0, 0, 0.45);
+    }
+
+    .fade-in {
+        animation: fadeIn 0.5s ease-in;
+    }
+
+    @keyframes fadeIn {
+        from { opacity: 0; transform: translateY(20px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+
+    .sentiment-pill {
+        background: rgba(26, 27, 38, 0.9);
+        transition: all 0.3s ease;
+        cursor: pointer;
+    }
+    
+    .sentiment-pill:hover {
+        transform: scale(1.05);
+        box-shadow: 0 0 15px rgba(122, 162, 247, 0.2);
+    }
+
+    .comment-card {
+        transition: all 0.3s ease;
+    }
+    
+    .comment-card:hover {
+        transform: translateX(10px);
+        border-color: rgba(122, 162, 247, 0.3);
+        box-shadow: 0 0 20px rgba(122, 162, 247, 0.1);
+    }
+
+    .filter-btn {
+        background: rgba(26, 27, 38, 0.8);
+        border: 1px solid rgba(122, 162, 247, 0.2);
+        transition: all 0.3s ease;
+    }
+    
+    .filter-btn:hover {
+        background: rgba(122, 162, 247, 0.2);
+        border-color: rgba(122, 162, 247, 0.4);
+    }
+
+    .filter-btn.active {
+        background: rgba(122, 162, 247, 0.3);
+        border-color: rgba(122, 162, 247, 0.5);
+    }
+
+    .dark-glass {
+        background: rgba(26, 27, 38, 0.7);
+        backdrop-filter: blur(12px);
+        border: 1px solid rgba(122, 162, 247, 0.1);
+        box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+    }
+
+    .sentiment-badge {
+        position: relative;
+        overflow: hidden;
+    }
+
+    .sentiment-badge::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: linear-gradient(45deg, transparent, rgba(255,255,255,0.1), transparent);
+        transform: translateX(-100%);
+        transition: transform 0.5s;
+    }
+
+    .sentiment-badge:hover::before {
+        transform: translateX(100%);
+    }
+
+    .confidence-pill {
+        background: rgba(26, 27, 38, 0.9);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    /* Animated gradient borders */
+    @property --angle {
+        syntax: '<angle>';
+        initial-value: 0deg;
+        inherits: false;
+    }
+
+    @keyframes rotate {
+        to {
+            --angle: 360deg;
+        }
+    }
+
+    .comment-card:hover .gradient-border {
+        border: none;
+        position: relative;
+        background: linear-gradient(var(--angle), #7aa2f7, #2ac3de, #7aa2f7);
+        animation: rotate 4s linear infinite;
+        padding: 1px;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="max-w-6xl mx-auto px-4">
+    <!-- Form Section -->
+    <div class="max-w-xl mx-auto mb-10">
+        <form id="analysisForm" class="glass-card rounded-xl p-8 shadow-lg" 
+              data-analysis-url="{% url 'analyzer:analyze' %}">
+            <div class="mb-6">
+                <label class="block text-gray-300 text-sm font-bold mb-2" for="url">
+                    Enter YouTube Video URL
+                </label>
+                <input class="w-full px-4 py-3 rounded-lg bg-gray-800 border border-gray-700 text-gray-200 focus:ring-2 focus:ring-accent-color focus:border-transparent transition-all duration-300" 
+                       id="url" 
+                       type="url" 
+                       required
+                       placeholder="https://www.youtube.com/watch?v=...">
+            </div>
+            <div class="relative">
+                <button class="w-full bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white font-bold py-3 px-6 rounded-lg transition-all duration-300 transform hover:scale-[1.02]" 
+                        type="submit">
+                    <span id="buttonText">Analyze Sentiment</span>
+                    <div id="loadingIndicator" class="hidden absolute inset-0 flex items-center justify-center">
+                        <svg class="animate-spin h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                        </svg>
+                    </div>
+                </button>
+            </div>
+            <div id="errorMessage" class="hidden mt-4 p-4 bg-red-100 border-l-4 border-red-500 text-red-700 rounded-r-lg"></div>
+        </form>
+    </div>
+
+    <!-- Results Section -->
+    <div id="results" class="hidden fade-in">
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-8 mb-8">
+            <!-- Statistics Card -->
+            <div class="glass-card rounded-xl p-6">
+                <h2 class="text-2xl font-bold text-gray-300 mb-4">Analysis Results</h2>
+                <div class="flex justify-between items-center mb-6">
+                    <div class="space-y-3">
+                        <div class="sentiment-pill bg-green-100 text-green-800 px-4 py-2 rounded-full">
+                            Positive: <span id="positivePercentage" class="font-bold">0%</span>
+                        </div>
+                        <div class="sentiment-pill bg-gray-100 text-gray-800 px-4 py-2 rounded-full">
+                            Neutral: <span id="neutralPercentage" class="font-bold">0%</span>
+                        </div>
+                        <div class="sentiment-pill bg-red-100 text-red-800 px-4 py-2 rounded-full">
+                            Negative: <span id="negativePercentage" class="font-bold">0%</span>
+                        </div>
+                    </div>
+                    <div class="w-48 h-48">
+                        <canvas id="sentimentChart"></canvas>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Sorting Controls -->
+            <div class="glass-card rounded-xl p-6">
+                <h2 class="text-2xl font-bold text-gray-300 mb-4">Filter Comments</h2>
+                <div class="flex flex-wrap gap-4">
+                    <button class="filter-btn active bg-blue-500 text-white px-4 py-2 rounded-lg transition-all duration-300 hover:bg-blue-600"
+                            data-filter="all">All</button>
+                    <button class="filter-btn bg-green-500 text-white px-4 py-2 rounded-lg transition-all duration-300 hover:bg-green-600"
+                            data-filter="positive">Positive</button>
+                    <button class="filter-btn bg-gray-500 text-white px-4 py-2 rounded-lg transition-all duration-300 hover:bg-gray-600"
+                            data-filter="neutral">Neutral</button>
+                    <button class="filter-btn bg-red-500 text-white px-4 py-2 rounded-lg transition-all duration-300 hover:bg-red-600"
+                            data-filter="negative">Negative</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Comments List -->
+        <div id="commentsList" class="space-y-4">
+            <!-- Comments will be inserted here -->
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script src="{% static 'js/analysis.js' %}"></script>
+{% endblock %}
