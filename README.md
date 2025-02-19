@@ -29,7 +29,7 @@ This web app analyzes YouTube comments and reviews to perform **sentiment analys
 
 1. **Clone the repository**:
    ```bash
-   git clone https://github.com/Shaikat-CSE/Youtube-Sentiment-Analysis-With-RoBERTa.git
+   git clone https://github.com/Shaikat-CSE/Youtube-sentiment-analysis-with-RoBERTa.git
    cd youtube-sentiment-analysis
    ```
 
@@ -65,7 +65,7 @@ This web app analyzes YouTube comments and reviews to perform **sentiment analys
 If you have suggestions or improvements for this project, feel free to fork it and submit a pull request! Contributions are welcome.
 
 ### Bug Reports & Feature Requests
-If you encounter any bugs or would like to request new features, please create an issue in the [Issues section](https://github.com/Shaikat-CSE/Youtube-Sentiment-Analysis-With-RoBERTa.git/issues).
+If you encounter any bugs or would like to request new features, please create an issue in the [Issues section](https://github.com/Shaikat-CSE/Youtube-sentiment-analysis-with-RoBERTa.git/issues).
 
 ## License 📝
 This project is licensed under the MIT License - see the [LICENSE.md](LICENSE.md) file for details.
